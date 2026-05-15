@@ -1,0 +1,28 @@
+{
+  "name": "tempresourcesforbuild",
+  "version": "0.0.1",
+  "private": true,
+  "description": "An SAP Fiori application.",
+  "keywords": [
+    "ui5",
+    "openui5",
+    "sapui5"
+  ],
+  "main": "webapp/index.html",
+  "dependencies": {
+    "to": "^0.2.9",
+    "update": "^0.7.4",
+    "yaml": "^2.4.1"
+  },
+  "devDependencies": {
+    "@sap/ux-ui5-tooling": "1",
+    "@ui5/cli": "^3.11.6"
+  },
+  "scripts": {
+    "start": "fiori run --open \"test/flpSandbox.html?sap-ui-xx-viewCache=false#comsyuzdevdemoapp-display\"",
+    "start-local": "fiori run --config ./ui5-local.yaml --open \"test/flpSandbox.html?sap-ui-xx-viewCache=false#comsyuzdevdemoapp-display\"",
+    "build": "ui5 build --config=ui5.yaml self-contained --all --clean-dest --dest www --include-task=generateComponentPreload generateLibraryPreload && npm run move-to-dist",
+    "move-to-dist": "node moveToDist.js"
+  },
+  "sapuxLayer": "CUSTOMER_BASE"
+}
