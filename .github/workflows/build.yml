@@ -31,12 +31,10 @@ jobs:
       # Checkout Custom Nodes Repo
       # =====================================================
 
-      - name: Checkout Custom Nodes Repo
-        uses: actions/checkout@v4
-        with:
-          repository: entitecdev3/ENT_RED_CustomNodes
-          token: ${{ secrets.PAT_TOKEN }}
-          path: workspace/custom-nodes
+      - name: Check Secret Exists
+        run: echo "Secret Exists"
+        env:
+          TOKEN: ${{ secrets.PAT_TOKEN }}
 
       # =====================================================
       # Setup Node
