@@ -23,7 +23,8 @@ jobs:
       - name: Checkout App Repo
         uses: actions/checkout@v4
         with:
-          repository: entitecdev3/ENT_B1_Cockpit.git
+          repository: entitecdev3/ENT_B1_Cockpit
+          token: ${{ secrets.PAT_TOKEN }}
           path: workspace/app
 
       # =====================================================
@@ -33,7 +34,8 @@ jobs:
       - name: Checkout Custom Nodes Repo
         uses: actions/checkout@v4
         with:
-          repository: entitecdev3/ENT_RED_CustomNodes.git
+          repository: entitecdev3/ENT_RED_CustomNodes
+          token: ${{ secrets.PAT_TOKEN }}
           path: workspace/custom-nodes
 
       # =====================================================
