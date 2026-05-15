@@ -19,22 +19,24 @@ jobs:
       # =====================================================
       # Checkout App Repo (UI5 + API)
       # =====================================================
-
       - name: Checkout App Repo
         uses: actions/checkout@v4
         with:
-          repository: entitecdev3/ENT_B1_Cockpit
-          token: ${{ secrets.PAT_TOKEN }}
-          path: workspace/app
+            repository: entitecdev3/ENT_B1_Cockpit
+            token: ${{ secrets.PAT_TOKEN }}
+            path: workspace/app
+    
 
       # =====================================================
       # Checkout Custom Nodes Repo
       # =====================================================
 
-      - name: Check Secret Exists
-        run: echo "Secret Exists"
-        env:
-          TOKEN: ${{ secrets.PAT_TOKEN }}
+      - name: Checkout Custom Nodes Repo
+        uses: actions/checkout@v4
+        with:
+          repository: entitecdev3/ENT_RED_CustomNodes
+          token: ${{ secrets.PAT_TOKEN }}
+          path: workspace/custom-nodes
 
       # =====================================================
       # Setup Node
