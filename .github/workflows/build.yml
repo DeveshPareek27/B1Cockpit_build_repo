@@ -1,0 +1,61 @@
+name: Build B1 Cockpit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+
+      # =====================================================
+      # Checkout Builder Repo
+      # =====================================================
+
+      - name: Checkout Builder Repo
+        uses: actions/checkout@v4
+
+      # =====================================================
+      # Checkout App Repo (UI5 + API)
+      # =====================================================
+
+      - name: Checkout App Repo
+        uses: actions/checkout@v4
+        with:
+          repository: https://github.com/entitecdev3/ENT_B1_Cockpit.git
+          path: workspace/app
+
+      # =====================================================
+      # Checkout Custom Nodes Repo
+      # =====================================================
+
+      - name: Checkout Custom Nodes Repo
+        uses: actions/checkout@v4
+        with:
+          repository: https://github.com/entitecdev3/ENT_RED_CustomNodes.git
+          path: workspace/custom-nodes
+
+      # =====================================================
+      # Setup Node
+      # =====================================================
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # =====================================================
+      # Install UI5 CLI
+      # =====================================================
+
+      - name: Install UI5 CLI
+        run: npm install -g @ui5/cli
+
+      # =====================================================
+      # Show Workspace
+      # =====================================================
+
+      - name: Show Workspace Structure
+        run: dir workspace
+        shell: cmd
