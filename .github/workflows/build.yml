@@ -1,4 +1,4 @@
-name: Build B1 Cockpit
+name: build
 
 on:
   workflow_dispatch:
@@ -9,27 +9,15 @@ jobs:
 
     steps:
 
-      # =====================================================
-      # Checkout Builder Repo
-      # =====================================================
-
       - name: Checkout Builder Repo
         uses: actions/checkout@v4
 
-      # =====================================================
-      # Checkout App Repo (UI5 + API)
-      # =====================================================
       - name: Checkout App Repo
         uses: actions/checkout@v4
         with:
-            repository: entitecdev3/ENT_B1_Cockpit
-            token: ${{ secrets.PAT_TOKEN }}
-            path: workspace/app
-    
-
-      # =====================================================
-      # Checkout Custom Nodes Repo
-      # =====================================================
+          repository: entitecdev3/ENT_B1_Cockpit
+          token: ${{ secrets.PAT_TOKEN }}
+          path: workspace/app
 
       - name: Checkout Custom Nodes Repo
         uses: actions/checkout@v4
@@ -38,26 +26,17 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           path: workspace/custom-nodes
 
-      # =====================================================
-      # Setup Node
-      # =====================================================
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # =====================================================
-      # Install UI5 CLI
-      # =====================================================
-
-      - name: Install UI5 CLI
-        run: npm install -g @ui5/cli
-
-      # =====================================================
-      # Show Workspace
-      # =====================================================
-
-      - name: Show Workspace Structure
-        run: dir workspace
+      - name: Run Build
+        run: createBuild.bat
         shell: cmd
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: B1Cockpit-Installer
+          path: output/*.exe
