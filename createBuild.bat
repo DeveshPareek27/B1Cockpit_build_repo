@@ -51,33 +51,6 @@ echo [INFO] API Path: %API_PATH%
 echo [INFO] Custom Node Path: %CUSTOM_NODE_PATH%
 echo.
 
-REM ===================================================================
-REM SCRIPT 1: CLEAN BUILD DIRECTORY
-REM ===================================================================
-
-echo [STEP 1] Cleaning build directory...
-
-if not exist "%BUILD_DIR%" (
-    echo [WARN] Build directory "%BUILD_DIR%" not found. Skipping clean.
-    goto :step2
-)
-
-cd /d "%BUILD_DIR%"
-
-echo [INFO] Cleaning everything in build directory "%BUILD_DIR%"...
-
-for /D %%D in (*) do (
-    echo [INFO] Deleting folder: %%D
-    rmdir /s /q "%%D" 2>nul
-)
-
-for %%F in (*) do (
-    echo [INFO] Deleting file: %%F
-    del /q "%%F" 2>nul
-)
-
-echo [INFO] Build directory cleaned.
-echo.
 
 :step2
 
