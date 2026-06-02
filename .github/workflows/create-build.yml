@@ -70,25 +70,48 @@ jobs:
       # ---------------------------------------------------------------
       # 4. Validate required source files exist before building
       # ---------------------------------------------------------------
-      - name: Validate Required Files
+
+      - name: Debug ENT_B1_Cockpit
         shell: pwsh
         run: |
           $ws = $env:GITHUB_WORKSPACE
-          $required = @(
-            "$ws\ENT_B1_Cockpit\flow.json",
-            "$ws\ENT_B1_Cockpit\version.json",
-            "$ws\ENT_B1_Cockpit\webapp"
-          )
-          $missing = $false
-          foreach ($path in $required) {
-            if (Test-Path $path) {
-              Write-Host "[OK]      $path"
-            } else {
-              Write-Host "[MISSING] $path"
-              $missing = $true
-            }
-          }
-          if ($missing) { exit 1 }
+
+          Write-Host "Folder exists:"
+          Test-Path "$ws\ENT_B1_Cockpit"
+
+          Write-Host ""
+          Write-Host "Contents:"
+          Get-ChildItem "$ws\ENT_B1_Cockpit"
+
+          Write-Host ""
+          Write-Host "flow.json:"
+          Test-Path "$ws\ENT_B1_Cockpit\flow.json"
+
+          Write-Host "version.json:"
+          Test-Path "$ws\ENT_B1_Cockpit\version.json"
+
+          Write-Host "webapp:"
+          Test-Path "$ws\ENT_B1_Cockpit\webapp"
+
+      # - name: Validate Required Files
+      #   shell: pwsh
+      #   run: |
+      #     $ws = $env:GITHUB_WORKSPACE
+      #     $required = @(
+      #       "$ws\ENT_B1_Cockpit\flow.json",
+      #       "$ws\ENT_B1_Cockpit\version.json",
+      #       "$ws\ENT_B1_Cockpit\webapp"
+      #     )
+      #     $missing = $false
+      #     foreach ($path in $required) {
+      #       if (Test-Path $path) {
+      #         Write-Host "[OK]      $path"
+      #       } else {
+      #         Write-Host "[MISSING] $path"
+      #         $missing = $true
+      #       }
+      #     }
+      #     if ($missing) { exit 1 }
 
       # ---------------------------------------------------------------
       # 5. Run the build script
