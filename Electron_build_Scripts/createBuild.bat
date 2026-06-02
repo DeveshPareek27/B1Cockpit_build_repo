@@ -7,7 +7,7 @@ REM ===================================================================
 REM LOAD CONFIGURATION
 REM ===================================================================
 echo [STEP 0] Loading configuration from 0_0_Config.env...
-for /f "tokens=1,* delims==" %%A in (0_0_Config.env) do (
+for /f "tokens=1,* delims==" %%A in ("%~dp00_0_Config.env") do (
     set %%A=%%B
 )
 echo [INFO] Configuration loaded.
@@ -21,6 +21,12 @@ cd ..
 set "BASE_DIR=%cd%"
 set "BUILD_DIR=%BASE_DIR%\%Build_Dir%"
 set "ELECTRON_SCRIPT_PATH=%~dp0"
+
+REM Safety guard: abort if config failed to load (Build_Dir would be empty)
+if "%Build_Dir%"=="" (
+    echo [ERROR] Build_Dir is empty - config file failed to load. Aborting to prevent data loss.
+    exit /b 1
+)
 
 echo [INFO] Base Directory: %BASE_DIR%
 echo [INFO] Build Directory: %BUILD_DIR%
