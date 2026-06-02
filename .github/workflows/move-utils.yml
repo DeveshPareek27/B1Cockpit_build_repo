@@ -1,4 +1,4 @@
-name: Move Utils Files
+name: Move Important Files
 
 on:
   push:
@@ -9,31 +9,18 @@ jobs:
   move-files:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Move Files
         run: |
           mkdir -p target
-          mv utils/* target/ || true
 
-      - name: Commit Changes
+          mv utils/package.json target/ || true
+          mv utils/ui5.yaml target/ || true
+          mv utils/moveToDist.js target/ || true
+
+      - name: Show Result
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-      
-          git add .
-      
-          if git diff --staged --quiet; then
-            echo "No changes"
-          else
-            git commit -m "Move files from utils to target"
-      
-            git pull --rebase origin main
-      
-            git push origin HEAD:main
-          fi
+          echo "Files in target:"
+          ls -la target
