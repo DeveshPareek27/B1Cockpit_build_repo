@@ -22,7 +22,7 @@ jobs:
         with:
           submodules: recursive
           # If these are private repositories, uncomment below and add a PAT (Personal Access Token) to your repository secrets:
-          # token: ${{ secrets.SUBMODULE_PAT }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       # ---------------------------------------------------------------
       # 2. Set up Node.js
