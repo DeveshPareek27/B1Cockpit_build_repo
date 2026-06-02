@@ -1,0 +1,9 @@
+[submodule "ENT_B1_Cockpit"]
+	path = ENT_B1_Cockpit
+	url = https://github.com/entitecdev3/ENT_B1_Cockpit.git
+[submodule "ENT_B1_Scripts"]
+	path = ENT_B1_Scripts
+	url = https://github.com/entitecdev3/ENT_B1_Scripts.git
+[submodule "ENT_RED_CustomNodes"]
+	path = ENT_RED_CustomNodes
+	url = https://github.com/entitecdev3/ENT_RED_CustomNodes.git
