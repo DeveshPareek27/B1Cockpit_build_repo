@@ -26,17 +26,28 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           path: workspace/custom-nodes
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Run Build
-        run: createBuild.bat
+      - name: Show Workspace Structure
         shell: cmd
+        run: |
+          echo ========================================
+          echo ROOT
+          echo ========================================
+          dir
 
-      - name: Upload Installer
-        uses: actions/upload-artifact@v4
-        with:
-          name: B1Cockpit-Installer
-          path: output/*.exe
+          echo.
+          echo ========================================
+          echo WORKSPACE
+          echo ========================================
+          dir workspace
+
+          echo.
+          echo ========================================
+          echo APP REPO
+          echo ========================================
+          dir workspace\app
+
+          echo.
+          echo ========================================
+          echo CUSTOM NODE REPO
+          echo ========================================
+          dir workspace\custom-nodes
