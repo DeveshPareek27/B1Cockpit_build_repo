@@ -7,7 +7,7 @@ REM ===================================================================
 REM LOAD CONFIGURATION
 REM ===================================================================
 echo [STEP 0] Loading configuration from 0_0_Config.env...
-for /f "tokens=1,* delims==" %%A in ("%~dp00_0_Config.env") do (
+for /f "usebackq tokens=1,* delims==" %%A in ("%~dp00_0_Config.env") do (
     set %%A=%%B
 )
 echo [INFO] Configuration loaded.
