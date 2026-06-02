@@ -173,9 +173,23 @@ mkdir temp
 
 echo [INFO] Copying webapp folder...
 xcopy /s /e /y "%UI5_PATH%\webapp\*" "temp\webapp\" >nul
-copy /Y "%ELECTRON_SCRIPT_PATH%utils\package.json" "temp\package.json" >nul
-copy /Y "%ELECTRON_SCRIPT_PATH%utils\ui5.yaml" "temp\ui5.yaml" >nul
-copy /Y "%ELECTRON_SCRIPT_PATH%utils\moveToDist.js" "temp\moveToDist.js" >nul
+if exist "%BASE_DIR%\target\package.json" (
+    copy /Y "%BASE_DIR%\target\package.json" "temp\package.json" >nul
+) else (
+    copy /Y "%ELECTRON_SCRIPT_PATH%utils\package.json" "temp\package.json" >nul
+)
+
+if exist "%BASE_DIR%\target\ui5.yaml" (
+    copy /Y "%BASE_DIR%\target\ui5.yaml" "temp\ui5.yaml" >nul
+) else (
+    copy /Y "%ELECTRON_SCRIPT_PATH%utils\ui5.yaml" "temp\ui5.yaml" >nul
+)
+
+if exist "%BASE_DIR%\target\moveToDist.js" (
+    copy /Y "%BASE_DIR%\target\moveToDist.js" "temp\moveToDist.js" >nul
+) else (
+    copy /Y "%ELECTRON_SCRIPT_PATH%utils\moveToDist.js" "temp\moveToDist.js" >nul
+)
 
 cd temp
 echo [INFO] Running npm install in temp directory...
