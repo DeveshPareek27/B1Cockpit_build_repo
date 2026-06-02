@@ -1,0 +1,71 @@
+name: Create Electron Build
+
+on:
+  # Trigger manually from the GitHub Actions tab
+  workflow_dispatch:
+
+  # Also trigger automatically on every push to main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # ---------------------------------------------------------------
+      # 1. Checkout the full repository
+      # ---------------------------------------------------------------
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------------------
+      # 2. Set up Node.js
+      # ---------------------------------------------------------------
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ---------------------------------------------------------------
+      # 3. Override 0_0_Config.env with GitHub runner paths
+      #    The original file has hardcoded local D:\ paths.
+      #    We replace them with paths inside the GitHub workspace.
+      # ---------------------------------------------------------------
+      - name: Override Config Paths for CI
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+          $config = @(
+            "PROJECT=ENT_B1_Cockpit",
+            "UI5_PATH=$ws\ENT_B1_Cockpit",
+            "API_PATH=$ws",
+            "UI_BUILD_PATH=$ws\Utils",
+            "Build_Dir=B1Cockpit_Build",
+            "COPY_DEST_PATH="
+          ) -join "`r`n"
+          Set-Content -Path "Electron_build_Scripts\0_0_Config.env" -Value $config -Encoding ASCII
+          Write-Host "[INFO] Config overridden:"
+          Get-Content "Electron_build_Scripts\0_0_Config.env"
+
+      # ---------------------------------------------------------------
+      # 4. Run the build script
+      #    CI=true is automatically set by GitHub Actions, which causes
+      #    all `pause` commands in the bat file to be skipped.
+      # ---------------------------------------------------------------
+      - name: Run createBuild.bat
+        shell: cmd
+        run: |
+          call Electron_build_Scripts\createBuild.bat
+
+      # ---------------------------------------------------------------
+      # 5. Upload the generated installer as a downloadable artifact
+      # ---------------------------------------------------------------
+      - name: Upload Installer Artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ElectronInstaller
+          path: Electron_build_Scripts\ENT_B1_Cockpit-Installer-*.exe
+          if-no-files-found: warn

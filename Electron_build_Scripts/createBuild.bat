@@ -66,7 +66,7 @@ if exist "!FLOW_JSON_PATH!" (
     copy /y "!FLOW_JSON_PATH!" "%BUILD_DIR%\flow.json" >nul
 ) else (
     echo [ERROR] flow.json not found. Exiting...
-    pause
+    if not defined CI pause
     exit /b 1
 )
 
@@ -94,7 +94,7 @@ if exist "%ELECTRON_SCRIPT_PATH%electron_files\main_b1Cockpit_template.js" (
     copy /Y "%ELECTRON_SCRIPT_PATH%electron_files\package-template.json" "package.json" >nul
 ) else (
     echo [ERROR] main_b1cockpit.js not found. Exiting...
-    pause
+    if not defined CI pause
     exit /b 1
 )
 
@@ -113,7 +113,7 @@ echo [INFO] Current directory: %cd%
 call npm install
 if %errorlevel% neq 0 (
     echo [ERROR] npm install failed.
-    pause
+    if not defined CI pause
     exit /b %errorlevel%
 )
 echo [INFO] npm install completed.
@@ -141,7 +141,7 @@ call npx electron-packager . "%productName%" --overwrite --asar --platform=win32
 
 if %errorlevel% neq 0 (
     echo [ERROR] EXE packaging failed with error code: %errorlevel%
-    pause
+    if not defined CI pause
     exit /b %errorlevel%
 )
 echo [INFO] EXE created successfully.
@@ -167,7 +167,7 @@ echo [INFO] Running npm install in temp directory...
 call npm install
 if %errorlevel% neq 0 (
     echo [ERROR] npm install failed.
-    pause
+    if not defined CI pause
     exit /b %errorlevel%
 )
 echo [INFO] Temp folder setup complete.
@@ -195,7 +195,7 @@ echo [INFO] Running npm run build...
 call npm run build
 IF %ERRORLEVEL% NEQ 0 (
     echo [ERROR] npm run build failed. Aborting.
-    pause
+    if not defined CI pause
     exit /b %ERRORLEVEL%
 )
 echo [INFO] UI build complete.
@@ -216,7 +216,7 @@ if exist "%SOURCE_PATH%" (
     echo [INFO] Copying from "%SOURCE_PATH%" to "%TARGET_PATH%"...
     xcopy "%SOURCE_PATH%\*" "%TARGET_PATH%\" /E /I /Y
     echo [INFO] Files copied successfully.
-    
+
     set "TEMP_FOLDER=%BASE_DIR%\temp"
     if exist "!TEMP_FOLDER!" (
         echo [INFO] Deleting temp folder...
@@ -313,5 +313,5 @@ echo ========================================
 echo [INFO] Installer created: %PROJECT%-Installer-%version%.exe
 echo [INFO] Location: %ELECTRON_SCRIPT_PATH%
 echo ========================================
-pause
+if not defined CI pause
 endlocal
