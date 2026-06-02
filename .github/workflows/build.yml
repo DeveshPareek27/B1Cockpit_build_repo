@@ -1,53 +1,28 @@
-name: build
+name: Move Utils Files
 
 on:
-  workflow_dispatch:
+  push:
+    paths:
+      - 'utils/**'
 
 jobs:
-  build:
-    runs-on: windows-latest
+  move-files:
+    runs-on: ubuntu-latest
 
     steps:
-
-      - name: Checkout Builder Repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Checkout App Repo
-        uses: actions/checkout@v4
-        with:
-          repository: entitecdev3/ENT_B1_Cockpit
-          token: ${{ secrets.PAT_TOKEN }}
-          path: workspace/app
-
-      - name: Checkout Custom Nodes Repo
-        uses: actions/checkout@v4
-        with:
-          repository: entitecdev3/ENT_RED_CustomNodes
-          token: ${{ secrets.PAT_TOKEN }}
-          path: workspace/custom-nodes
-
-      - name: Show Workspace Structure
-        shell: cmd
+      - name: Move Files
         run: |
-          echo ========================================
-          echo ROOT
-          echo ========================================
-          dir
+          mkdir -p archive
+          mv utils/* archive/ || true
 
-          echo.
-          echo ========================================
-          echo WORKSPACE
-          echo ========================================
-          dir workspace
+      - name: Commit Changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
 
-          echo.
-          echo ========================================
-          echo APP REPO
-          echo ========================================
-          dir workspace\app
-
-          echo.
-          echo ========================================
-          echo CUSTOM NODE REPO
-          echo ========================================
-          dir workspace\custom-nodes
+          git add .
+          git diff --staged --quiet || git commit -m "Move utils files to archive"
+          git push
