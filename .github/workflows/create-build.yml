@@ -28,6 +28,25 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Debug Repository
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+
+          Write-Host "Workspace: $ws"
+          Write-Host "=============================="
+
+          Get-ChildItem $ws
+
+          Write-Host "=============================="
+          Write-Host "ENT_B1_Cockpit exists?"
+
+          Test-Path "$ws\ENT_B1_Cockpit"
+
+          if (Test-Path "$ws\ENT_B1_Cockpit") {
+            Get-ChildItem "$ws\ENT_B1_Cockpit"
+          }
+
       # ---------------------------------------------------------------
       # 3. Override 0_0_Config.env with GitHub runner paths
       #    Written with LF-only line endings to prevent the classic
