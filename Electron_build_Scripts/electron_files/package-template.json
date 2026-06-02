@@ -1,0 +1,103 @@
+{
+    "name": "ENT_B1_Cockpit",
+    "version": "@version",
+    "description": "ENT_B1_Cockpit",
+    "main": "main.js",
+    "NRelectron": {
+        "productName": "ENT_B1_Cockpit",
+        "editable": false,
+        "allowLoadSave": false,
+        "showMap": false,
+        "kioskMode": false,
+        "addNodes": true,
+        "flowFile": "flow.json",
+        "start": "console"
+    },
+    "scripts": {
+        "pack": "electron-builder --dir",
+        "dist": "electron-builder",
+        "release": "electron-builder build -p always",
+        "start": "electron main.js",
+        "test": "echo \" Warning: no test specified \""
+    },
+    "dependencies": {
+        "@sap/hana-client": "2.15.19",
+        "electron-is-dev": "^1.2.0",
+        "electron-store": "^6.0.1",
+        "ent-red-contrib-custom-logger": "file:API/ENT_RED_CustomNodes/CustomLogger",
+        "express": "^4.17.2",
+        "fs-extra": "^11.1.0",
+        "mssql": "8.1.4",
+        "node-red": "^3.0.0",
+        "node-red-contrib-async": "0.0.4",
+        "node-red-contrib-checksum": "~1.3.0",
+        "node-red-contrib-hcl-iterate-loop": "0.0.2",
+        "node-red-contrib-json2xlsx": "~1.0.2",
+        "node-red-contrib-jwt": "~0.1.0",
+        "node-red-contrib-loop": "~1.0.1",
+        "node-red-contrib-md5": "~1.0.4",
+        "node-red-contrib-serial-iterator": "~0.1.3",
+        "node-red-contrib-static": "~1.0.2",
+        "node-red-custom-smb2": "file:API/ENT_RED_CustomNodes/node-red-custom-smb2",
+        "node-red-custom-sqlite": "file:API/ENT_RED_CustomNodes/node-red-custom-sqlite",
+        "node-red-custom-ssh-v3": "file:API/ENT_RED_CustomNodes/node-red-custom-ssh-v3",
+        "node-red-node-email": "file:API/ENT_RED_CustomNodes/node-red-node-email",
+        "nodejs-winrm": "^1.1.3",
+        "red-contrib-HanaClient-config": "file:API/ENT_RED_CustomNodes/HanaClient-config",
+        "red-contrib-HanaClient-request": "file:API/ENT_RED_CustomNodes/HanaClient-request",
+        "red-contrib-b1-service-layer-config": "file:API/ENT_RED_CustomNodes/B1ServiceLayer-config",
+        "red-contrib-b1-service-layer-request": "file:API/ENT_RED_CustomNodes/B1ServiceLayer-request",
+        "red-contrib-settings-config": "file:API/ENT_RED_CustomNodes/settings_config_node",
+        "node-red-debugger": "^1.1.1",
+        "ssh2": "^1.15.0",
+        "superagent": "^9.0.2",
+        "yo-pilot": "file:API/ENT_RED_CustomNodes/yo-pilot",
+        "exceljs": "^4.4.0"
+    },
+    "devDependencies": {
+    "electron": "^39.8.6",
+    "electron-builder": "^25.1.8",
+    "@electron/packager": "^20.0.0"
+  },
+    "build": {
+        "appId": "com.entitec.B1SysManagement",
+        "productName": "ENT_B1_Cockpit",
+        "copyright": "Copyright © 2023 Entitec Solutions",
+        "buildDependenciesFromSource": true,
+        "files": [
+            "**/*",
+            {
+                "from": "node_modules/@node-red/nodes/examples",
+                "to": "node_modules/@node-red/nodes/examples"
+            }
+        ],
+        "mac": {
+            "category": "public.app-category.developer-tools",
+            "target": "dmg"
+        },
+        "linux": {
+            "target": [
+                "rpm",
+                {
+                    "target": "deb",
+                    "arch": [
+                        "x64",
+                        "armv7l"
+                    ]
+                }
+            ],
+            "synopsis": "Node-RED Low Code development",
+            "category": "Development"
+        },
+        "win": {
+            "target": [
+                {
+                    "target": "msi",
+                    "arch": [
+                        "x64"
+                    ]
+                }
+            ]
+        }
+    }
+}
