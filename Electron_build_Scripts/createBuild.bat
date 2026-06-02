@@ -11,6 +11,9 @@ for /f "usebackq tokens=1,* delims==" %%A in ("%~dp00_0_Config.env") do (
     set %%A=%%B
 )
 echo [INFO] Configuration loaded.
+echo [DEBUG] PROJECT=%PROJECT%
+echo [DEBUG] UI5_PATH=%UI5_PATH%
+echo [DEBUG] API_PATH=%API_PATH%
 echo.
 
 REM ===================================================================
@@ -67,12 +70,18 @@ if not exist "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 if not exist "%BUILD_DIR%\API" mkdir "%BUILD_DIR%\API"
 
 echo [INFO] Copying flow.json...
+echo [DEBUG] UI5_PATH=%UI5_PATH%
+
 set "FLOW_JSON_PATH=%UI5_PATH%\flow.json"
+
+echo [DEBUG] FLOW_JSON_PATH=!FLOW_JSON_PATH!
+
 if exist "!FLOW_JSON_PATH!" (
+    echo [DEBUG] flow.json found
     copy /y "!FLOW_JSON_PATH!" "%BUILD_DIR%\flow.json" >nul
 ) else (
-    echo [ERROR] flow.json not found. Exiting...
-    if not defined CI pause
+    echo [DEBUG] flow.json NOT found
+    dir "%UI5_PATH%"
     exit /b 1
 )
 
