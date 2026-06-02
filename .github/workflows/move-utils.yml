@@ -1,0 +1,36 @@
+name: Move Utils Files
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  move-files:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Move Files
+        run: |
+          mkdir -p target
+          mv utils/* target/ || true
+
+      - name: Commit Changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add .
+
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Move files from utils to target"
+            git push
+          fi
