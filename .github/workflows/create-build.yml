@@ -30,29 +30,51 @@ jobs:
 
       # ---------------------------------------------------------------
       # 3. Override 0_0_Config.env with GitHub runner paths
-      #    The original file has hardcoded local D:\ paths.
-      #    We replace them with paths inside the GitHub workspace.
+      #    Written with LF-only line endings to prevent the classic
+      #    Windows batch bug where for /f picks up \r from CRLF files,
+      #    silently corrupting path variables.
       # ---------------------------------------------------------------
       - name: Override Config Paths for CI
         shell: pwsh
         run: |
           $ws = $env:GITHUB_WORKSPACE
-          $config = @(
-            "PROJECT=ENT_B1_Cockpit",
-            "UI5_PATH=$ws\ENT_B1_Cockpit",
-            "API_PATH=$ws",
-            "UI_BUILD_PATH=$ws\Utils",
-            "Build_Dir=B1Cockpit_Build",
-            "COPY_DEST_PATH="
-          ) -join "`r`n"
-          Set-Content -Path "Electron_build_Scripts\0_0_Config.env" -Value $config -Encoding ASCII
-          Write-Host "[INFO] Config overridden:"
-          Get-Content "Electron_build_Scripts\0_0_Config.env"
+          # Use LF-only (\n) — NOT CRLF (\r\n) — to avoid trailing \r in bat variables
+          $content = "PROJECT=ENT_B1_Cockpit`nUI5_PATH=$ws\ENT_B1_Cockpit`nAPI_PATH=$ws`nUI_BUILD_PATH=$ws\Utils`nBuild_Dir=B1Cockpit_Build`nCOPY_DEST_PATH="
+          [System.IO.File]::WriteAllText(
+            "$env:GITHUB_WORKSPACE\Electron_build_Scripts\0_0_Config.env",
+            $content,
+            [System.Text.Encoding]::ASCII
+          )
+          Write-Host "[INFO] Config written (LF line endings):"
+          Get-Content "$env:GITHUB_WORKSPACE\Electron_build_Scripts\0_0_Config.env"
 
       # ---------------------------------------------------------------
-      # 4. Run the build script
-      #    CI=true is automatically set by GitHub Actions, which causes
-      #    all `pause` commands in the bat file to be skipped.
+      # 4. Validate required source files exist before building
+      # ---------------------------------------------------------------
+      - name: Validate Required Files
+        shell: pwsh
+        run: |
+          $ws = $env:GITHUB_WORKSPACE
+          $required = @(
+            "$ws\ENT_B1_Cockpit\flow.json",
+            "$ws\ENT_B1_Cockpit\version.json",
+            "$ws\ENT_B1_Cockpit\webapp"
+          )
+          $missing = $false
+          foreach ($path in $required) {
+            if (Test-Path $path) {
+              Write-Host "[OK]      $path"
+            } else {
+              Write-Host "[MISSING] $path"
+              $missing = $true
+            }
+          }
+          if ($missing) { exit 1 }
+
+      # ---------------------------------------------------------------
+      # 5. Run the build script
+      #    CI=true is set by GitHub Actions — all `pause` commands
+      #    in the bat file check `if not defined CI` and are skipped.
       # ---------------------------------------------------------------
       - name: Run createBuild.bat
         shell: cmd
