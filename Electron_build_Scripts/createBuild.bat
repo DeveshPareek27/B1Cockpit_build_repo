@@ -333,7 +333,7 @@ cd /d "%ELECTRON_SCRIPT_PATH%"
 REM ===================================================================
 REM SCRIPT 11: Copy this installer file to B1cockpit build folder
 REM ===================================================================
-xcopy /E /I /Y "%ELECTRON_SCRIPT_PATH%\%PROJECT%-Installer-%version%.exe" "D:\Projects_BUILD\B1CockPit\B1Cockpit_Builds" >nul
+@REM xcopy /E /I /Y "%ELECTRON_SCRIPT_PATH%\%PROJECT%-Installer-%version%.exe" "D:\Projects_BUILD\B1CockPit\B1Cockpit_Builds" >nul
 
 echo.
 echo ========================================
