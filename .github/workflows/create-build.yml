@@ -146,3 +146,12 @@ jobs:
           name: ElectronInstaller
           path: Electron_build_Scripts\ENT_B1_Cockpit-Installer-*.exe
           if-no-files-found: warn
+
+            # Create GitHub Release
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          files: Electron_build_Scripts/ENT_B1_Cockpit-Installer-*.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
