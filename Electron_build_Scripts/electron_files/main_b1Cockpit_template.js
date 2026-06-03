@@ -2,6 +2,7 @@
 const express = require('express');
 const http = require('http');
 const https = require('https');
+const net = require('net');
 const RED = require('node-red');
 const { app: electronApp, BrowserWindow } = require('electron');
 const fs = require('fs');
@@ -125,10 +126,58 @@ const app = express();
 // Create HTTP or HTTPS server based on config
 console.log("on to the server creation step");
 let server;
+let tcpServer;
+let redirectServer;
+
 if (httpsEnabled) {
     try {
         server = https.createServer(tlsOptions, app);
         console.log('HTTPS server created successfully.');
+
+        // Handle TLS client errors gracefully
+        server.on('tlsClientError', (err, socket) => {
+            // Quietly destroy to prevent unhandled TLS connection reset crashes
+            socket.destroy();
+        });
+
+        // Create plain HTTP redirect server
+        redirectServer = http.createServer((req, res) => {
+            const hostHeader = req.headers.host || `localhost:${PORT}`;
+            res.writeHead(301, { "Location": `https://${hostHeader}${req.url}` });
+            res.end();
+        });
+
+        redirectServer.on('clientError', (err, socket) => {
+            socket.destroy();
+        });
+
+        // Create the multiplexing TCP server
+        tcpServer = net.createServer((socket) => {
+            socket.once('data', (data) => {
+                socket.pause();
+                const firstByte = data[0];
+
+                if (firstByte === 22) {
+                    // TLS ClientHello (HTTPS)
+                    server.emit('connection', socket);
+                } else {
+                    // Plain HTTP
+                    redirectServer.emit('connection', socket);
+                }
+
+                socket.unshift(data);
+                socket.resume();
+            });
+
+            socket.on('error', (err) => {
+                socket.destroy();
+            });
+        });
+
+        tcpServer.on('error', (err) => {
+            console.error('TCP Server error:', err.message);
+        });
+
     } catch (err) {
         console.error('Failed to create HTTPS server:', err.message);
         process.exit(1);
@@ -275,11 +324,15 @@ if (appEditable) {
 }
 app.use(settings.httpNodeRoot, RED.httpNode);
 
-// Start the Express server
+// Start the server (multiplexed TCP server if HTTPS enabled, otherwise HTTP server)
 const protocol = httpsEnabled ? 'https' : 'http';
-server.listen(PORT, () => {
+const listenServer = httpsEnabled ? tcpServer : server;
+listenServer.listen(PORT, () => {
     console.log(`UI running at ${protocol}://localhost:${PORT}/`);
     console.log(`Node-RED running at ${protocol}://localhost:${PORT}/red`);
+    if (httpsEnabled) {
+        console.log(`HTTP traffic is automatically redirected to HTTPS on the same port.`);
+    }
 });
 
 // Start Node-RED
