@@ -1,10 +1,8 @@
 name: Create Electron Build
 
 on:
-  # Trigger manually from the GitHub Actions tab
   workflow_dispatch:
 
-  # Also trigger automatically on every push to main
   push:
     branches:
       - main
@@ -15,143 +13,159 @@ jobs:
 
     steps:
       # ---------------------------------------------------------------
-      # 1. Checkout the full repository
+      # 1. Checkout Build Repository (this repository)
       # ---------------------------------------------------------------
-      - name: Checkout Repository
+      - name: Checkout Build Repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
-          # If these are private repositories, uncomment below and add a PAT (Personal Access Token) to your repository secrets:
+          path: BuildRepository
           token: ${{ secrets.PAT_TOKEN }}
 
       # ---------------------------------------------------------------
-      # 2. Set up Node.js
+      # 2. Checkout ENT_B1_Cockpit
+      # ---------------------------------------------------------------
+      - name: Checkout ENT_B1_Cockpit
+        uses: actions/checkout@v4
+        with:
+          repository: entitecdev3/ENT_Electron_Build
+          ref: main
+          path: ENT_B1_Cockpit
+          token: ${{ secrets.PAT_TOKEN }}
+
+      # ---------------------------------------------------------------
+      # 3. Checkout ENT_B1_Scripts
+      # ---------------------------------------------------------------
+      - name: Checkout ENT_B1_Scripts
+        uses: actions/checkout@v4
+        with:
+          repository: entitecdev3/ENT_B1_Scripts
+          ref: main
+          path: ENT_B1_Scripts
+          token: ${{ secrets.PAT_TOKEN }}
+
+      # ---------------------------------------------------------------
+      # 4. Checkout ENT_RED_CustomNodes
+      # ---------------------------------------------------------------
+      - name: Checkout ENT_RED_CustomNodes
+        uses: actions/checkout@v4
+        with:
+          repository: entitecdev3/ENT_RED_CustomNodes
+          ref: main
+          path: ENT_RED_CustomNodes
+          token: ${{ secrets.PAT_TOKEN }}
+
+      # ---------------------------------------------------------------
+      # 5. Setup Node.js
       # ---------------------------------------------------------------
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
-      - name: Debug Repository
+      # ---------------------------------------------------------------
+      # 6. Debug Workspace
+      # ---------------------------------------------------------------
+      - name: Debug Workspace
         shell: pwsh
         run: |
-          $ws = $env:GITHUB_WORKSPACE
+          Write-Host "Workspace:"
+          Get-ChildItem $env:GITHUB_WORKSPACE
 
-          Write-Host "Workspace: $ws"
-          Write-Host "=============================="
-
-          Get-ChildItem $ws
-
-          Write-Host "=============================="
-          Write-Host "ENT_B1_Cockpit exists?"
-
-          Test-Path "$ws\ENT_B1_Cockpit"
-
-          if (Test-Path "$ws\ENT_B1_Cockpit") {
-            Get-ChildItem "$ws\ENT_B1_Cockpit"
-          }
-
-#  2.1
-      - name: Verify Submodules
-        shell: pwsh
-        run: |
-          git submodule status
-
+          Write-Host ""
+          Write-Host "ENT_B1_Cockpit"
           Get-ChildItem "$env:GITHUB_WORKSPACE\ENT_B1_Cockpit"
 
-          Test-Path "$env:GITHUB_WORKSPACE\ENT_B1_Cockpit\flow.json"
+          Write-Host ""
+          Write-Host "ENT_B1_Scripts"
+          Get-ChildItem "$env:GITHUB_WORKSPACE\ENT_B1_Scripts"
+
+          Write-Host ""
+          Write-Host "ENT_RED_CustomNodes"
+          Get-ChildItem "$env:GITHUB_WORKSPACE\ENT_RED_CustomNodes"
+
       # ---------------------------------------------------------------
-      # 3. Override 0_0_Config.env with GitHub runner paths
-      #    Written with LF-only line endings to prevent the classic
-      #    Windows batch bug where for /f picks up \r from CRLF files,
-      #    silently corrupting path variables.
+      # 7. Create Config File
       # ---------------------------------------------------------------
       - name: Override Config Paths for CI
         shell: pwsh
         run: |
           $ws = $env:GITHUB_WORKSPACE
-          # Use LF-only (\n) — NOT CRLF (\r\n) — to avoid trailing \r in bat variables
-          $content = "PROJECT=ENT_B1_Cockpit`nUI5_PATH=$ws\ENT_B1_Cockpit`nAPI_PATH=$ws`nUI_BUILD_PATH=$ws\Utils`nBuild_Dir=B1Cockpit_Build`nCOPY_DEST_PATH="
+          $buildRepo = "$ws\BuildRepository"
+
+          $content = @"
+          PROJECT=ENT_B1_Cockpit
+          UI5_PATH=$ws\ENT_B1_Cockpit
+          API_PATH=$ws
+          SCRIPT_PATH=$ws\ENT_B1_Scripts
+          CUSTOM_NODE_PATH=$ws\ENT_RED_CustomNodes
+          UI_BUILD_PATH=$buildRepo\Utils
+          Build_Dir=B1Cockpit_Build
+          COPY_DEST_PATH=
+          "@
+
           [System.IO.File]::WriteAllText(
-            "$env:GITHUB_WORKSPACE\Electron_build_Scripts\0_0_Config.env",
-            $content,
-            [System.Text.Encoding]::ASCII
+              "$buildRepo\Electron_build_Scripts\0_0_Config.env",
+              $content.Trim(),
+              [System.Text.Encoding]::ASCII
           )
-          Write-Host "[INFO] Config written (LF line endings):"
-          Get-Content "$env:GITHUB_WORKSPACE\Electron_build_Scripts\0_0_Config.env"
+
+          Write-Host "Generated Config:"
+          Get-Content "$buildRepo\Electron_build_Scripts\0_0_Config.env"
 
       # ---------------------------------------------------------------
-      # 4. Validate required source files exist before building
+      # 8. Validate Required Files
       # ---------------------------------------------------------------
-
-      - name: Debug ENT_B1_Cockpit
+      - name: Validate Required Files
         shell: pwsh
         run: |
-          $ws = $env:GITHUB_WORKSPACE
+          $required = @(
+            "$env:GITHUB_WORKSPACE\ENT_B1_Cockpit\flow.json",
+            "$env:GITHUB_WORKSPACE\ENT_B1_Cockpit\version.json",
+            "$env:GITHUB_WORKSPACE\ENT_B1_Cockpit\webapp"
+          )
 
-          Write-Host "Folder exists:"
-          Test-Path "$ws\ENT_B1_Cockpit"
+          $missing = $false
 
-          Write-Host ""
-          Write-Host "Contents:"
-          Get-ChildItem "$ws\ENT_B1_Cockpit"
+          foreach ($file in $required) {
+            if (Test-Path $file) {
+              Write-Host "[OK] $file"
+            } else {
+              Write-Host "[MISSING] $file"
+              $missing = $true
+            }
+          }
 
-          Write-Host ""
-          Write-Host "flow.json:"
-          Test-Path "$ws\ENT_B1_Cockpit\flow.json"
-
-          Write-Host "version.json:"
-          Test-Path "$ws\ENT_B1_Cockpit\version.json"
-
-          Write-Host "webapp:"
-          Test-Path "$ws\ENT_B1_Cockpit\webapp"
-
-      # - name: Validate Required Files
-      #   shell: pwsh
-      #   run: |
-      #     $ws = $env:GITHUB_WORKSPACE
-      #     $required = @(
-      #       "$ws\ENT_B1_Cockpit\flow.json",
-      #       "$ws\ENT_B1_Cockpit\version.json",
-      #       "$ws\ENT_B1_Cockpit\webapp"
-      #     )
-      #     $missing = $false
-      #     foreach ($path in $required) {
-      #       if (Test-Path $path) {
-      #         Write-Host "[OK]      $path"
-      #       } else {
-      #         Write-Host "[MISSING] $path"
-      #         $missing = $true
-      #       }
-      #     }
-      #     if ($missing) { exit 1 }
+          if ($missing) {
+            exit 1
+          }
 
       # ---------------------------------------------------------------
-      # 5. Run the build script
-      #    CI=true is set by GitHub Actions — all `pause` commands
-      #    in the bat file check `if not defined CI` and are skipped.
+      # 9. Run Build
       # ---------------------------------------------------------------
       - name: Run createBuild.bat
         shell: cmd
         run: |
-          call Electron_build_Scripts\createBuild.bat
+          call BuildRepository\Electron_build_Scripts\createBuild.bat
 
       # ---------------------------------------------------------------
-      # 5. Upload the generated installer as a downloadable artifact
+      # 10. Upload Installer
       # ---------------------------------------------------------------
       - name: Upload Installer Artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ElectronInstaller
-          path: Electron_build_Scripts\ENT_B1_Cockpit-Installer-*.exe
+          path: BuildRepository\Electron_build_Scripts\ENT_B1_Cockpit-Installer-*.exe
           if-no-files-found: warn
 
-            # Create GitHub Release
+      # ---------------------------------------------------------------
+      # 11. Create GitHub Release
+      # ---------------------------------------------------------------
       - name: Create Release
+        if: success()
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.0
-          files: Electron_build_Scripts/ENT_B1_Cockpit-Installer-*.exe
+          files: BuildRepository/Electron_build_Scripts/ENT_B1_Cockpit-Installer-*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
