@@ -27,7 +27,7 @@ jobs:
       - name: Checkout ENT_B1_Cockpit
         uses: actions/checkout@v4
         with:
-          repository: entitecdev3/ENT_Electron_Build
+          repository: entitecdev3/ENT_B1_Cockpit
           ref: main
           path: ENT_B1_Cockpit
           token: ${{ secrets.PAT_TOKEN }}
