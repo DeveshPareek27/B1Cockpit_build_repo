@@ -297,9 +297,17 @@ powershell -Command "$c = Get-Content 'Config\config_flow.json' -Raw | ConvertFr
 
 mkdir "Config\log_flows" 2>nul
 
-if exist "%BUILD_DIR%\nssm.exe" (
-    echo [INFO] Copying nssm.exe...
-    copy "%BUILD_DIR%\nssm.exe" "%PROJECT%-win32-x64\nssm.exe" >nul
+@REM if exist "%BUILD_DIR%\nssm.exe" (
+@REM     echo [INFO] Copying nssm.exe...
+@REM     copy "%BUILD_DIR%\nssm.exe" "%PROJECT%-win32-x64\nssm.exe" >nul
+@REM )
+
+if exist "%BUILD_DIR%\servy-8.4-net48-x64-portable\" (
+    echo [INFO] Copying Servy...
+
+    xcopy "%BUILD_DIR%\servy-8.4-net48-x64-portable" ^
+          "%PROJECT%-win32-x64\servy-8.4-net48-x64-portable\" ^
+          /E /I /Y >nul
 )
 
 echo [INFO] Copying ENT_B1_Scripts...

@@ -5,17 +5,7 @@ SET BASE_PATH=%cd%
 SET DEFAULT_PORT=3000
 SET DEFAULT_SERVICE_NAME=ENT_B1_Cockpit-win32-x64-UI_API
 
-REM Create the config directory if it doesn't exist
-@REM mkdir Config 2>nul
-@REM if not exist "%BASE_PATH%\Config\config_flow.json" (
-@REM     copy "%BASE_PATH%\ENT_B1_Cockpit-win32-x64\config_flow-template.json" "%BASE_PATH%\Config\config_flow.json"
-@REM )
 
-REM Read current values from config_flow.json
-rem FOR /F "tokens=*" %%i IN ('powershell -NoProfile -Command "(Get-Content \"%BASE_PATH%\Config\config_flow.json\" | ConvertFrom-Json).'node-red-service-name'"') DO SET CURRENT_SERVICE_NAME=%%i
-rem FOR /F "tokens=*" %%i IN ('powershell -NoProfile -Command "(Get-Content \"%BASE_PATH%\Config\config_flow.json\" | ConvertFrom-Json).port"') DO SET CURRENT_PORT=%%i
-REM === Copy entire folder ===
-REM Check if the target Config folder exists
 SET SOURCE_CONFIG_DIR=%BASE_PATH%\ENT_B1_Cockpit-win32-x64\Config
 SET TARGET_CONFIG_DIR=%BASE_PATH%\Config
 
@@ -170,24 +160,78 @@ IF %ERRORLEVEL% NEQ 0 (
     goto CHOOSE_PORT
 )
 
-SET NODE_RED_SERVICE_DESCRIPTION=Entitec-%NODE_RED_SERVICE_NAME%-PORT-%NODE_RED_PORT%
-SET NSSM_DIR=%BASE_PATH%\ENT_B1_Cockpit-win32-x64
+
+@REM servy service install configuration
+
+REM =====================================================
+REM Servy Configuration
+REM =====================================================
+
+SET SERVY_DIR=%BASE_PATH%\ENT_B1_Cockpit-win32-x64\servy-8.4-net48-x64-portable
+SET SERVY_CLI=%SERVY_DIR%\servy-cli.exe
 SET NODE_RED_DIR=%BASE_PATH%\ENT_B1_Cockpit-win32-x64
-
-REM Update config_flow.json with new values
-rem powershell -NoProfile -Command "$config = Get-Content '%BASE_PATH%\Config\config_flow.json' | ConvertFrom-Json; $config.'node-red-service-name' = '%NODE_RED_SERVICE_NAME%'; $config.port = %NODE_RED_PORT%; $config | ConvertTo-Json -Depth 5 | Set-Content '%BASE_PATH%\Config\config_flow.json'"
-powershell -NoProfile -Command "$config = Get-Content '%BASE_PATH%\Config\config_flow.json' | ConvertFrom-Json; if (-not ($config.PSObject.Properties.Name -contains 'node-red-service-name')) { $config | Add-Member -NotePropertyName 'node-red-service-name' -NotePropertyValue '' }; if (-not ($config.PSObject.Properties.Name -contains 'port')) { $config | Add-Member -NotePropertyName 'port' -NotePropertyValue 0 }; $config.'node-red-service-name' = '%NODE_RED_SERVICE_NAME%'; $config.port = %NODE_RED_PORT%; $config | ConvertTo-Json -Depth 5 | Set-Content '%BASE_PATH%\Config\config_flow.json'"
-
-
-SET NODE_RED_SERVICE_LOG=%NODE_RED_DIR%\node_red_service_console.txt
+SET NODE_RED_SERVICE_DESCRIPTION=Entitec-%NODE_RED_SERVICE_NAME%-PORT-%NODE_RED_PORT%
 SET NODE_RED_LAUNCHER=%NODE_RED_DIR%\ENT_B1_Cockpit.exe
 
-"%NSSM_DIR%\nssm" install "%NODE_RED_SERVICE_NAME%" "%NODE_RED_LAUNCHER%"
-"%NSSM_DIR%\nssm" set "%NODE_RED_SERVICE_NAME%" AppDirectory "%NODE_RED_DIR%"
-"%NSSM_DIR%\nssm" set "%NODE_RED_SERVICE_NAME%" AppParameters " > \"%NODE_RED_SERVICE_LOG%\""
-"%NSSM_DIR%\nssm" set "%NODE_RED_SERVICE_NAME%" Description "%NODE_RED_SERVICE_DESCRIPTION%"
+IF NOT EXIST "%NODE_RED_DIR%\log_flows" (
+    mkdir "%NODE_RED_DIR%\log_flows"
+)
 
-timeout /t 5 /nobreak >nul
-"%NSSM_DIR%\nssm" start "%NODE_RED_SERVICE_NAME%"
+echo.
+echo Installing Windows Service...
+
+"%SERVY_CLI%" install ^
+    --name="%NODE_RED_SERVICE_NAME%" ^
+    --displayName="%NODE_RED_SERVICE_NAME%" ^
+    --description="%NODE_RED_SERVICE_DESCRIPTION%" ^
+    --path="%NODE_RED_LAUNCHER%" ^
+    --startupDir="%NODE_RED_DIR%" ^
+    --startupType="Automatic" ^
+    --stdout="%NODE_RED_DIR%\log_flows\stdout.log" ^
+    --stderr="%NODE_RED_DIR%\log_flows\stderr.log"
+
+IF ERRORLEVEL 1 (
+    echo.
+    echo Failed to install the Windows Service.
+    pause
+    exit /b 1
+)
+
+echo.
+echo Starting Windows Service...
+
+"%SERVY_CLI%" start --name="%NODE_RED_SERVICE_NAME%"
+
+IF ERRORLEVEL 1 (
+    echo.
+    echo Failed to start the Windows Service.
+    pause
+    exit /b 1
+)
+
+echo.
+echo Service installed and started successfully.
+
+@REM this is the old nssm configuration for the service creation
+
+@REM SET NODE_RED_SERVICE_DESCRIPTION=Entitec-%NODE_RED_SERVICE_NAME%-PORT-%NODE_RED_PORT%
+@REM SET NSSM_DIR=%BASE_PATH%\ENT_B1_Cockpit-win32-x64
+@REM SET NODE_RED_DIR=%BASE_PATH%\ENT_B1_Cockpit-win32-x64
+
+@REM REM Update config_flow.json with new values
+@REM rem powershell -NoProfile -Command "$config = Get-Content '%BASE_PATH%\Config\config_flow.json' | ConvertFrom-Json; $config.'node-red-service-name' = '%NODE_RED_SERVICE_NAME%'; $config.port = %NODE_RED_PORT%; $config | ConvertTo-Json -Depth 5 | Set-Content '%BASE_PATH%\Config\config_flow.json'"
+@REM powershell -NoProfile -Command "$config = Get-Content '%BASE_PATH%\Config\config_flow.json' | ConvertFrom-Json; if (-not ($config.PSObject.Properties.Name -contains 'node-red-service-name')) { $config | Add-Member -NotePropertyName 'node-red-service-name' -NotePropertyValue '' }; if (-not ($config.PSObject.Properties.Name -contains 'port')) { $config | Add-Member -NotePropertyName 'port' -NotePropertyValue 0 }; $config.'node-red-service-name' = '%NODE_RED_SERVICE_NAME%'; $config.port = %NODE_RED_PORT%; $config | ConvertTo-Json -Depth 5 | Set-Content '%BASE_PATH%\Config\config_flow.json'"
+
+
+@REM SET NODE_RED_SERVICE_LOG=%NODE_RED_DIR%\node_red_service_console.txt
+@REM SET NODE_RED_LAUNCHER=%NODE_RED_DIR%\ENT_B1_Cockpit.exe
+
+@REM "%NSSM_DIR%\nssm" install "%NODE_RED_SERVICE_NAME%" "%NODE_RED_LAUNCHER%"
+@REM "%NSSM_DIR%\nssm" set "%NODE_RED_SERVICE_NAME%" AppDirectory "%NODE_RED_DIR%"
+@REM "%NSSM_DIR%\nssm" set "%NODE_RED_SERVICE_NAME%" AppParameters " > \"%NODE_RED_SERVICE_LOG%\""
+@REM "%NSSM_DIR%\nssm" set "%NODE_RED_SERVICE_NAME%" Description "%NODE_RED_SERVICE_DESCRIPTION%"
+
+@REM timeout /t 5 /nobreak >nul
+@REM "%NSSM_DIR%\nssm" start "%NODE_RED_SERVICE_NAME%"
 
 endlocal
