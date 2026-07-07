@@ -100,7 +100,8 @@ echo [INFO] APPLICATION_PORT: %APPLICATION_PORT%
 
 if not exist "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 copy /Y "%ELECTRON_SCRIPT_PATH%electron_files\preload.js" "%BUILD_DIR%\" >nul
-copy /y "%ELECTRON_SCRIPT_PATH%electron_files\nssm.exe" "%BUILD_DIR%\" >nul
+@REM copy /y "%ELECTRON_SCRIPT_PATH%electron_files\nssm.exe" "%BUILD_DIR%\" >nul
+xcopy "%ELECTRON_SCRIPT_PATH%electron_files\servy-8.4-net48-x64-portable" ^ "%BUILD_DIR%\" ^  /E /I /Y >nul
 
 echo [INFO] Preparing main.js...
 cd /d "%BUILD_DIR%"
