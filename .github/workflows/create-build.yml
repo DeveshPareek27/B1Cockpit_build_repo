@@ -19,6 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: BuildRepository
+          token: ${{ secrets.PAT_TOKEN }}
 
       # ---------------------------------------------------------------
       # 2. Checkout ENT_B1_Cockpit
