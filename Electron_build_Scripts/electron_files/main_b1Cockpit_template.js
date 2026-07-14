@@ -249,28 +249,28 @@ const settings = {
             level: "info",
             metrics: false,
             audit: false
-        },
-        writeToFile: {
-            level: 'trace',
-            metrics: false,
-            filePath: '',
-            handler: function (settings) {
-                return function (msg) {
-                    const logDir = path.join('.', 'log_flows');
-                    if (!fs.existsSync(logDir)) {
-                        fs.mkdirSync(logDir, { recursive: true });
-                    }
-                    const dateStr = new Date().toISOString().split('T')[0];
-                    if (settings.filePath === undefined || settings.filePath === '') {
-                        settings.filePath = path.join(logDir, `log_${dateStr}.txt`);
-                    }
-                    fs.appendFileSync(
-                        settings.filePath,
-                        new Date().toString() + ' -- ' + msg.msg + '\n'
-                    );
-                }
-            }
         }
+        // writeToFile: {
+        //     level: 'trace',
+        //     metrics: false,
+        //     filePath: '',
+        //     handler: function (settings) {
+        //         return function (msg) {
+        //             const logDir = path.join('.', 'log_flows');
+        //             if (!fs.existsSync(logDir)) {
+        //                 fs.mkdirSync(logDir, { recursive: true });
+        //             }
+        //             const dateStr = new Date().toISOString().split('T')[0];
+        //             if (settings.filePath === undefined || settings.filePath === '') {
+        //                 settings.filePath = path.join(logDir, `log_${dateStr}.txt`);
+        //             }
+        //             fs.appendFileSync(
+        //                 settings.filePath,
+        //                 new Date().toString() + ' -- ' + msg.msg + '\n'
+        //             );
+        //         }
+        //     }
+        // }
     },
     functionExternalModules: true
 };
