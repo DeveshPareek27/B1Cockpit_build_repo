@@ -20,7 +20,11 @@ console.log("Architecture :", process.arch);
 console.log("Heap Limit   :", (heap.heap_size_limit / 1024 / 1024).toFixed(2), "MB");
 console.log("=====================================");
 
-
+//!  Increase heap size  to 4 GB
+electronApp.commandLine.appendSwitch(
+    "js-flags",
+    "--max-old-space-size=4096"
+);
 
 
 
@@ -138,11 +142,7 @@ else {
 
 const app = express();
 
-//!  Increase heap size  to 4 GB
-app.commandLine.appendSwitch(
-    "js-flags",
-    "--max-old-space-size=4096"
-);
+
 
 // Create HTTP or HTTPS server based on config
 console.log("on to the server creation step");
