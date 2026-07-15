@@ -7,7 +7,26 @@ const RED = require('node-red');
 const { app: electronApp, BrowserWindow } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const v8 = require("v8"); // !
 // const dotenv = require('dotenv');
+
+
+
+//! HEAP Configuration
+const heap = v8.getHeapStatistics();
+console.log("============== V8 Heap ==============");
+console.log("Node Version :", process.version);
+console.log("Architecture :", process.arch);
+console.log("Heap Limit   :", (heap.heap_size_limit / 1024 / 1024).toFixed(2), "MB");
+console.log("=====================================");
+
+//!  Increase heap size  to 4 GB
+app.commandLine.appendSwitch(
+    "js-flags",
+    "--max-old-space-size=4096"
+);
+
+
 
 // Configrations
 const parentDirPath = path.resolve(__dirname, "../../../Config");
