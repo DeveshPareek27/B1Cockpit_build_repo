@@ -20,11 +20,7 @@ console.log("Architecture :", process.arch);
 console.log("Heap Limit   :", (heap.heap_size_limit / 1024 / 1024).toFixed(2), "MB");
 console.log("=====================================");
 
-//!  Increase heap size  to 4 GB
-electronApp.commandLine.appendSwitch(
-    "js-flags",
-    "--max-old-space-size=4096"
-);
+
 
 
 
@@ -49,6 +45,13 @@ const config = JSON.parse(readConfig);
 const PORT = config.port || '3000';
 const appEditable = config['api-editable'] || false;
 
+
+//!  configure heap size  to 4 GB
+const heapSize = Number(config.heap) || 2048;  //? config.heap = 4096;
+electronApp.commandLine.appendSwitch(
+    "js-flags",
+    `--max-old-space-size=${heapSize}`  // config.heap = 4096;
+);
 
 
 // HTTPS config
@@ -270,28 +273,28 @@ const settings = {
             level: "info",
             metrics: false,
             audit: false
+        },
+        writeToFile: {
+            level: 'trace',
+            metrics: false,
+            filePath: '',
+            handler: function (settings) {
+                return function (msg) {
+                    const logDir = path.join('.', 'log_flows');
+                    if (!fs.existsSync(logDir)) {
+                        fs.mkdirSync(logDir, { recursive: true });
+                    }
+                    const dateStr = new Date().toISOString().split('T')[0];
+                    if (settings.filePath === undefined || settings.filePath === '') {
+                        settings.filePath = path.join(logDir, `log_${dateStr}.txt`);
+                    }
+                    fs.appendFileSync(
+                        settings.filePath,
+                        new Date().toString() + ' -- ' + msg.msg + '\n'
+                    );
+                }
+            }
         }
-        // writeToFile: {
-        //     level: 'trace',
-        //     metrics: false,
-        //     filePath: '',
-        //     handler: function (settings) {
-        //         return function (msg) {
-        //             const logDir = path.join('.', 'log_flows');
-        //             if (!fs.existsSync(logDir)) {
-        //                 fs.mkdirSync(logDir, { recursive: true });
-        //             }
-        //             const dateStr = new Date().toISOString().split('T')[0];
-        //             if (settings.filePath === undefined || settings.filePath === '') {
-        //                 settings.filePath = path.join(logDir, `log_${dateStr}.txt`);
-        //             }
-        //             fs.appendFileSync(
-        //                 settings.filePath,
-        //                 new Date().toString() + ' -- ' + msg.msg + '\n'
-        //             );
-        //         }
-        //     }
-        // }
     },
     functionExternalModules: true
 };
