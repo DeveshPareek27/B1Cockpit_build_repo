@@ -5,3 +5,4 @@
 - build for the html content issue in info reprot 0300
 
 - release
+- release in august
