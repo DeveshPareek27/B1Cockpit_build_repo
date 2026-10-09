@@ -42,6 +42,8 @@
         "node-red-custom-sqlite": "file:API/ENT_RED_CustomNodes/node-red-custom-sqlite",
         "node-red-custom-ssh-v3": "file:API/ENT_RED_CustomNodes/node-red-custom-ssh-v3",
         "node-red-node-email": "file:API/ENT_RED_CustomNodes/node-red-node-email",
+        "red-contrib-custom-winrm": "file:ENT_RED_CustomNodes/node-red-custom-winrm",
+        "winrm-client": "^0.0.12",
         "nodejs-winrm": "^1.1.3",
         "red-contrib-HanaClient-config": "file:API/ENT_RED_CustomNodes/HanaClient-config",
         "red-contrib-HanaClient-request": "file:API/ENT_RED_CustomNodes/HanaClient-request",

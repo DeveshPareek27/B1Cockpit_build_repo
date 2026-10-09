@@ -265,6 +265,7 @@ const settings = {
         crypto: require("crypto"),
         fs: require("fs"),
         excelJS: require('exceljs'),
+        winrmPool: require('red-contrib-custom-winrm/winrm-pool'),
         yoPilot: require('yo-pilot')
     },
     projectDir: scriptFilePath,
