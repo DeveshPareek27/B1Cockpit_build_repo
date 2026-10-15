@@ -198,9 +198,22 @@ if (httpsEnabled) {
             });
         });
 
+        // tcpServer.on('error', (err) => {
+        //     console.error('TCP Server error:', err.message);
+        // });
+
         tcpServer.on('error', (err) => {
             console.error('TCP Server error:', err.message);
+
+            if (httpsEnabled && err.code === 'EADDRINUSE') {
+                console.error(
+                    `HTTPS TCP port ${PORT} is already in use. Exiting application.`
+                );
+
+                process.exit(1);
+            }
         });
+
 
     } catch (err) {
         console.error('Failed to create HTTPS server:', err.message);

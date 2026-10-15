@@ -19,6 +19,23 @@ REM Check if the target Config folder exists
 SET SOURCE_CONFIG_DIR=%BASE_PATH%\ENT_B1_Cockpit-win32-x64\Config
 SET TARGET_CONFIG_DIR=%BASE_PATH%\Config
 
+SET "NSS_TARGET_DIR=%BASE_PATH%\ENT_B1_Cockpit-win32-x64"
+
+IF NOT EXIST "%NSS_TARGET_DIR%\nssm.exe" (
+    IF EXIST "%SOURCE_CONFIG_DIR%\nssm.exe" (
+        copy "%SOURCE_CONFIG_DIR%\nssm.exe" "%NSS_TARGET_DIR%\nssm.exe" >NUL
+        IF ERRORLEVEL 1 (
+            echo ERROR: Failed to copy nssm.exe.
+        ) ELSE (
+            echo SUCCESS: nssm.exe copied successfully.
+        )
+    ) ELSE (
+        echo ERROR: Source nssm.exe not found.
+    )
+) ELSE (
+    echo INFO: nssm.exe already exists in target. Skipping copy.
+)
+
 if not exist "%TARGET_CONFIG_DIR%" (
     echo [INFO] Target Config folder not found. Creating...
     xcopy "%SOURCE_CONFIG_DIR%" "%TARGET_CONFIG_DIR%" /E /I /Y >nul
