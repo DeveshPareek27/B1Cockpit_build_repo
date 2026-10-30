@@ -299,7 +299,7 @@ mkdir "Config\log_flows" 2>nul
 
 if exist "%BUILD_DIR%\nssm.exe" (
     echo [INFO] Copying nssm.exe...
-    @REM  copy "%BUILD_DIR%\nssm.exe" "%PROJECT%-win32-x64\nssm.exe" >nul
+    copy "%BUILD_DIR%\nssm.exe" "%PROJECT%-win32-x64\nssm.exe" >nul
     copy /Y "%BUILD_DIR%\nssm.exe" "Config\nssm.exe" >nul
 )
 
