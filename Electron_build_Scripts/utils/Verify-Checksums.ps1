@@ -26,25 +26,11 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$ManifestPath,
+    [string]$ManifestPath = (Join-Path $PSScriptRoot 'checksums.sha256'),
     [string]$Root,
+    # Number of files hashed in parallel (0 = automatic, based on CPU count)
     [int]$Threads = 0
 )
-
-$ScriptDirectory = Split-Path -Parent $MyInvocation.MyCommand.Path
-
-if ([string]::IsNullOrWhiteSpace($ScriptDirectory)) {
-    Write-Host "[ERROR] Unable to determine script directory."
-    exit 2
-}
-
-if ([string]::IsNullOrWhiteSpace($ManifestPath)) {
-    $ManifestPath = Join-Path -Path $ScriptDirectory -ChildPath 'checksums.sha256'
-}
-
-if ([string]::IsNullOrWhiteSpace($Root)) {
-    $Root = $ScriptDirectory
-}
 
 Set-StrictMode -Version 2
 $ErrorActionPreference = 'Stop'
