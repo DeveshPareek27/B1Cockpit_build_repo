@@ -26,7 +26,9 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$ManifestPath = (Join-Path $PSScriptRoot 'checksums.sha256'),
+    # Default (resolved below): checksums.sha256 next to this script.
+    # Not set here: $PSScriptRoot is empty in param defaults under Windows PowerShell 5.1 with -File.
+    [string]$ManifestPath,
     [string]$Root,
     # Number of files hashed in parallel (0 = automatic, based on CPU count)
     [int]$Threads = 0
@@ -110,6 +112,11 @@ function Stop-WithManifestError([string]$Message) {
 }
 
 try {
+    if (-not $ManifestPath) {
+        $scriptDir = $PSScriptRoot
+        if (-not $scriptDir) { $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path }
+        $ManifestPath = Join-Path $scriptDir 'checksums.sha256'
+    }
     if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) {
         Stop-WithManifestError "Checksum manifest not found: $ManifestPath"
     }
