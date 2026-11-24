@@ -85,8 +85,15 @@ if exist "!FLOW_JSON_PATH!" (
     exit /b 1
 )
 
-echo [INFO] Copying ENT_RED_CustomNodes to build\API...
-xcopy /s /e /y "%API_PATH%\ENT_RED_CustomNodes\*" "%BUILD_DIR%\API\ENT_RED_CustomNodes\" >nul
+REM Only the custom nodes referenced as "file:API/ENT_RED_CustomNodes/..." in
+REM package-template.json are copied - unused nodes are left out of the EXE.
+echo [INFO] Copying used ENT_RED_CustomNodes to build\API...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ELECTRON_SCRIPT_PATH%utils\Copy-CustomNodes.ps1" -PackageJson "%ELECTRON_SCRIPT_PATH%electron_files\package-template.json" -Source "%API_PATH%\ENT_RED_CustomNodes" -Destination "%BUILD_DIR%\API\ENT_RED_CustomNodes"
+if %errorlevel% neq 0 (
+    echo [ERROR] Copying custom nodes failed.
+    if not defined CI pause
+    exit /b 1
+)
 echo [INFO] Build structure created.
 echo.
 

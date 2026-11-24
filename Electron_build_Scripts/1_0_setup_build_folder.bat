@@ -39,10 +39,14 @@ if exist "!FLOW_JSON_PATH!" (
 )
 
 
-REM === Copy ENT_RED_CustomNodes ===
-echo [INFO] Copying ENT_RED_CustomNodes to build\API...
-xcopy /s /e /y "%API_PATH%\ENT_RED_CustomNodes\*" "%BUILD_DIR%\API\ENT_RED_CustomNodes\" >nul
-echo "%API_PATH%\ENT_RED_CustomNodes\*"
+REM === Copy only the ENT_RED_CustomNodes referenced in package-template.json ===
+echo [INFO] Copying used ENT_RED_CustomNodes to build\API...
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0utils\Copy-CustomNodes.ps1" -PackageJson "%~dp0electron_files\package-template.json" -Source "%API_PATH%\ENT_RED_CustomNodes" -Destination "%BUILD_DIR%\API\ENT_RED_CustomNodes"
+if %errorlevel% neq 0 (
+    echo [ERROR] Copying custom nodes failed.
+    pause
+    exit /b 1
+)
 
 
 
