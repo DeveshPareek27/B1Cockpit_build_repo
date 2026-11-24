@@ -23,22 +23,6 @@ set "version=%VERSION%"
 echo Version is: %version%
 
 set "INSTALLER_FILE=%BASE_PATH%\%PROJECT%-Installer-%version%.exe"
-set "PAYLOAD_MANIFEST=%BASE_PATH%\..\%Build_Dir%\release-builds\checksums.sha256"
-
-REM SHA-256 manifest of everything packed into the installer (checked by Install.bat).
-REM Keep this file list identical to the 7z file list below.
-powershell -NoProfile -ExecutionPolicy Bypass -File "%BASE_PATH%\utils\New-Checksums.ps1" -OutFile "%PAYLOAD_MANIFEST%" ^
-   "%BASE_PATH%\..\%Build_Dir%\release-builds\%PROJECT%-win32-x64" ^
-   "%BASE_PATH%\utils\Install.bat" ^
-   "%BASE_PATH%\utils\Uninstall.bat" ^
-   "%BASE_PATH%\utils\Auto_Restart_Cockpit.bat" ^
-   "%BASE_PATH%\utils\Reconfig.bat" ^
-   "%BASE_PATH%\utils\Verify-Checksums.ps1"
-if %errorlevel% neq 0 (
-    echo [ERROR] Payload checksum generation failed.
-    cd %BASE_PATH%
-    exit /b 1
-)
 
 REM "7z a" appends to an existing archive, so start from a clean file
 if exist "%INSTALLER_FILE%" del /f /q "%INSTALLER_FILE%"
@@ -49,17 +33,12 @@ REM Use projectName from config file
    "%BASE_PATH%\utils\Install.bat" ^
    "%BASE_PATH%\utils\Uninstall.bat" ^
    "%BASE_PATH%\utils\Auto_Restart_Cockpit.bat" ^
-   "%BASE_PATH%\utils\Reconfig.bat" ^
-   "%BASE_PATH%\utils\Verify-Checksums.ps1" ^
-   "%PAYLOAD_MANIFEST%"
+   "%BASE_PATH%\utils\Reconfig.bat"
 if %errorlevel% neq 0 (
     echo [ERROR] Installer creation failed.
     cd %BASE_PATH%
     exit /b 1
 )
-
-REM SHA-256 of the installer for download verification (.sha256 + .json)
-powershell -NoProfile -ExecutionPolicy Bypass -File "%BASE_PATH%\utils\New-Checksums.ps1" -Installer "%INSTALLER_FILE%" -Product "%PROJECT%" -Version "%version%" -PayloadManifest "%PAYLOAD_MANIFEST%"
 
 REM Return to base path
 cd %BASE_PATH%

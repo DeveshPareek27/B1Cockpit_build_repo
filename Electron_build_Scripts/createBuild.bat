@@ -332,45 +332,22 @@ echo [INFO] Version: %VERSION%
 
 set "version=%VERSION%"
 set "INSTALLER_FILE=%ELECTRON_SCRIPT_PATH%%PROJECT%-Installer-%version%.exe"
-set "PAYLOAD_MANIFEST=%BUILD_DIR%\release-builds\checksums.sha256"
 
-REM --- 10a: SHA-256 manifest of everything packed into the installer ---
-REM     Install.bat verifies the extracted files against this manifest.
-REM     Keep this file list identical to the 7z file list below.
-echo [INFO] Generating payload checksum manifest...
-powershell -NoProfile -ExecutionPolicy Bypass -File "%ELECTRON_SCRIPT_PATH%utils\New-Checksums.ps1" -OutFile "%PAYLOAD_MANIFEST%" "%BUILD_DIR%\release-builds\%PROJECT%-win32-x64" "%ELECTRON_SCRIPT_PATH%utils\Install.bat" "%ELECTRON_SCRIPT_PATH%utils\Uninstall.bat" "%ELECTRON_SCRIPT_PATH%utils\Auto_Restart_Cockpit.bat" "%ELECTRON_SCRIPT_PATH%utils\Reconfig.bat" "%ELECTRON_SCRIPT_PATH%utils\Verify-Checksums.ps1"
-if %errorlevel% neq 0 (
-    echo [ERROR] Payload checksum generation failed.
-    if not defined CI pause
-    exit /b 1
-)
-
-REM --- 10b: Build the SFX installer (remove any old one: "7z a" would append to it) ---
+REM --- Build the SFX installer (remove any old one: "7z a" would append to it) ---
 echo [INFO] Creating installer: %PROJECT%-Installer-%version%.exe
 if exist "%INSTALLER_FILE%" del /f /q "%INSTALLER_FILE%"
-if exist "%INSTALLER_FILE%.sha256" del /f /q "%INSTALLER_FILE%.sha256"
-if exist "%ELECTRON_SCRIPT_PATH%%PROJECT%-Installer-%version%.json" del /f /q "%ELECTRON_SCRIPT_PATH%%PROJECT%-Installer-%version%.json"
 
-7z a -sfx "%INSTALLER_FILE%" "%BUILD_DIR%\release-builds\%PROJECT%-win32-x64" "%ELECTRON_SCRIPT_PATH%utils\Install.bat" "%ELECTRON_SCRIPT_PATH%utils\Uninstall.bat" "%ELECTRON_SCRIPT_PATH%utils\Auto_Restart_Cockpit.bat" "%ELECTRON_SCRIPT_PATH%utils\Reconfig.bat" "%ELECTRON_SCRIPT_PATH%utils\Verify-Checksums.ps1" "%PAYLOAD_MANIFEST%"
+7z a -sfx "%INSTALLER_FILE%" "%BUILD_DIR%\release-builds\%PROJECT%-win32-x64" "%ELECTRON_SCRIPT_PATH%utils\Install.bat" "%ELECTRON_SCRIPT_PATH%utils\Uninstall.bat" "%ELECTRON_SCRIPT_PATH%utils\Auto_Restart_Cockpit.bat" "%ELECTRON_SCRIPT_PATH%utils\Reconfig.bat"
 if %errorlevel% neq 0 (
     echo [ERROR] Installer creation failed.
     if not defined CI pause
     exit /b 1
 )
 
-REM --- 10c: Test archive integrity ---
+REM --- Test the archive (7-Zip's own check that the installer is not corrupted) ---
 7z t "%INSTALLER_FILE%" >nul
 if %errorlevel% neq 0 (
     echo [ERROR] Installer archive test failed.
-    if not defined CI pause
-    exit /b 1
-)
-
-REM --- 10d: SHA-256 of the installer for download verification (.sha256 + .json) ---
-echo [INFO] Generating installer checksum...
-powershell -NoProfile -ExecutionPolicy Bypass -File "%ELECTRON_SCRIPT_PATH%utils\New-Checksums.ps1" -Installer "%INSTALLER_FILE%" -Product "%PROJECT%" -Version "%version%" -PayloadManifest "%PAYLOAD_MANIFEST%"
-if %errorlevel% neq 0 (
-    echo [ERROR] Installer checksum generation failed.
     if not defined CI pause
     exit /b 1
 )
@@ -388,8 +365,6 @@ echo ========================================
 echo [SUCCESS] BUILD COMPLETE!
 echo ========================================
 echo [INFO] Installer created: %PROJECT%-Installer-%version%.exe
-echo [INFO] Checksum file:     %PROJECT%-Installer-%version%.exe.sha256
-echo [INFO] Release manifest:  %PROJECT%-Installer-%version%.json
 echo [INFO] Location: %ELECTRON_SCRIPT_PATH%
 echo ========================================
 if not defined CI pause

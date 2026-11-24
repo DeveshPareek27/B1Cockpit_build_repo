@@ -14,7 +14,4 @@ echo 🔖 Version: %VERSION%
 @REM for /f "delims=" %%v in ('powershell -Command "(Get-Content -Raw -Path '%BASE_PATH%/b_BUILD/package.json' | ConvertFrom-Json).version"') do set version=%%v
 
 copy %BASE_PATH%\ENT_B1_Cockpit-Installer-%VERSION%.exe %COPY_DEST_PATH% /Y
-copy %BASE_PATH%\ENT_B1_Cockpit-Installer-%VERSION%.exe.sha256 %COPY_DEST_PATH% /Y
-copy %BASE_PATH%\ENT_B1_Cockpit-Installer-%VERSION%.json %COPY_DEST_PATH% /Y
-
 cd %BASE_PATH%

@@ -44,8 +44,6 @@ if /i "%choice%"=="Y" (
 	    REM del /f "%BASE_PATH%\zRestart_service.bat"
 		del /f "%BASE_PATH%\Reconfig.bat"
 		del /f "%BASE_PATH%\Auto_Restart_Cockpit.bat"
-        del /f "%BASE_PATH%\Verify-Checksums.ps1"
-        del /f "%BASE_PATH%\checksums.sha256"
         del /f "%BASE_PATH%\Uninstall.bat"
     ) else (
         REM echo Invalid choice. Please enter K or D.

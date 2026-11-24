@@ -1,32 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM ===================================================================
-REM PACKAGE INTEGRITY CHECK (SHA-256)
-REM Verifies every extracted file against checksums.sha256, which is
-REM generated at build time and packed into the installer.
-REM ===================================================================
-echo [INFO] Verifying package integrity...
-IF NOT EXIST "%~dp0Verify-Checksums.ps1" (
-    echo [ERROR] Verify-Checksums.ps1 not found next to Install.bat.
-    GOTO INTEGRITY_FAILED
-)
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0Verify-Checksums.ps1" -ManifestPath "%~dp0checksums.sha256"
-IF %ERRORLEVEL% NEQ 0 GOTO INTEGRITY_FAILED
-echo.
-GOTO INTEGRITY_OK
-
-:INTEGRITY_FAILED
-echo.
-echo [ERROR] Package integrity check FAILED. Installation aborted.
-echo [ERROR] The installer is corrupted or its files were modified.
-echo [ERROR] Download the installer again, verify it against the published
-echo [ERROR] .sha256 checksum, extract it to an empty folder and re-run Install.bat.
-pause
-exit /b 1
-
-:INTEGRITY_OK
-
 SET BASE_PATH=%cd%
 SET DEFAULT_PORT=3000
 SET DEFAULT_SERVICE_NAME=ENT_B1_Cockpit-win32-x64-UI_API
