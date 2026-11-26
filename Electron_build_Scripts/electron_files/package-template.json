@@ -56,7 +56,7 @@
     "devDependencies": {
     "electron": "45.0.0",
     "electron-builder": "^25.1.8",
-    "@electron/packager": "^20.0.0"
+    "@electron/packager": "^20.3.0"
   },
     "build": {
         "appId": "com.entitec.B1SysManagement",
